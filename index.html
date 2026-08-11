@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BuloJS — Home</title>
+<meta name="description" content="Accès rapide à mes projets GitHub Pages.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --bg-glow: #e4e8ef;
+    --card: #ffffff;
+    --card-hover: #ffffff;
+    --border: #dfe3e9;
+    --border-hover: #9aa4b2;
+    --text: #14161a;
+    --muted: #5f6773;
+    --accent: #3b6fe0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d0f13;
+      --bg-glow: #171b22;
+      --card: #14181f;
+      --card-hover: #1a1f28;
+      --border: #262c36;
+      --border-hover: #4c5666;
+      --text: #eef1f5;
+      --muted: #98a1b0;
+      --accent: #6f9bff;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: clamp(2rem, 6vw, 5rem) clamp(1rem, 5vw, 3rem);
+    background: radial-gradient(circle at 50% -10%, var(--bg-glow), var(--bg) 60%);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    max-width: 1100px;
+    margin: 0 auto clamp(2rem, 5vw, 3.5rem);
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0 0 .5rem;
+    font-size: clamp(1.9rem, 5vw, 2.8rem);
+    letter-spacing: -0.02em;
+  }
+
+  header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: clamp(.95rem, 2.5vw, 1.05rem);
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: clamp(.9rem, 2.5vw, 1.4rem);
+  }
+
+  .tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    aspect-ratio: 1 / 1;
+    padding: 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--card);
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+    transition: transform .18s ease, border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
+  }
+
+  .tile:hover,
+  .tile:focus-visible {
+    transform: translateY(-4px);
+    border-color: var(--border-hover);
+    background: var(--card-hover);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, .12);
+    outline: none;
+  }
+
+  .tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .tile .emoji {
+    position: absolute;
+    top: 1rem;
+    left: 1.1rem;
+    font-size: 1.7rem;
+    line-height: 1;
+    opacity: .9;
+  }
+
+  .tile .name {
+    font-size: 1.15rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    word-break: break-word;
+  }
+
+  .tile .desc {
+    margin-top: .3rem;
+    font-size: .85rem;
+    color: var(--muted);
+    line-height: 1.35;
+  }
+
+  .tile .arrow {
+    position: absolute;
+    top: 1rem;
+    right: 1.1rem;
+    color: var(--muted);
+    transition: transform .18s ease, color .18s ease;
+  }
+
+  .tile:hover .arrow,
+  .tile:focus-visible .arrow {
+    color: var(--accent);
+    transform: translate(2px, -2px);
+  }
+
+  footer {
+    max-width: 1100px;
+    margin: clamp(2.5rem, 6vw, 4rem) auto 0;
+    text-align: center;
+    color: var(--muted);
+    font-size: .85rem;
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile, .tile .arrow { transition: none; }
+    .tile:hover, .tile:focus-visible { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>BuloJS</h1>
+  <p>Mes projets hébergés sur GitHub Pages</p>
+</header>
+
+<main>
+  <!--
+    Pour ajouter / retirer un carré : modifie simplement la liste ci-dessous.
+    - name  : le texte affiché
+    - url   : le lien (par défaut https://bulojs.github.io/<repo>/)
+    - emoji : optionnel
+    - desc  : optionnel, petite ligne sous le nom
+  -->
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <p>Code source sur <a href="https://github.com/BuloJS?tab=repositories">github.com/BuloJS</a></p>
+</footer>
+
+<script>
+  const SITES = [
+    { name: "Series",          url: "https://bulojs.github.io/Series/",          emoji: "📺", desc: "Classement de séries" },
+    { name: "Simu-SCI",        url: "https://bulojs.github.io/Simu-SCI/",        emoji: "🏢", desc: "Simulateur SCI" },
+    { name: "Finance",         url: "https://bulojs.github.io/Finance/",         emoji: "💰", desc: "Outils finance" },
+    { name: "VulnsManagement", url: "https://bulojs.github.io/VulnsManagement/", emoji: "🛡️", desc: "Gestion de vulnérabilités" },
+    { name: "toktool",         url: "https://bulojs.github.io/toktool/",         emoji: "🧰", desc: "Boîte à outils" },
+  ];
+
+  const grid = document.getElementById("grid");
+
+  for (const site of SITES) {
+    const a = document.createElement("a");
+    a.className = "tile";
+    a.href = site.url;
+
+    if (site.emoji) {
+      const em = document.createElement("span");
+      em.className = "emoji";
+      em.setAttribute("aria-hidden", "true");
+      em.textContent = site.emoji;
+      a.appendChild(em);
+    }
+
+    const arrow = document.createElement("span");
+    arrow.className = "arrow";
+    arrow.setAttribute("aria-hidden", "true");
+    arrow.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg>';
+    a.appendChild(arrow);
+
+    const name = document.createElement("span");
+    name.className = "name";
+    name.textContent = site.name;
+    a.appendChild(name);
+
+    if (site.desc) {
+      const desc = document.createElement("span");
+      desc.className = "desc";
+      desc.textContent = site.desc;
+      a.appendChild(desc);
+    }
+
+    grid.appendChild(a);
+  }
+</script>
+
+</body>
+</html>
