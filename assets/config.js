@@ -15,3 +15,10 @@ export const SUPABASE_ANON_KEY =
 // Chemin de la page d'accueil, vers laquelle les autres sites renvoient
 // lorsqu'aucune session valide n'est trouvée.
 export const HOME_PATH = "/Home/";
+
+// Affichage du bouton "Créer le compte".
+// Passe à false une fois ton compte créé et les inscriptions coupées dans
+// Supabase (Authentication → Sign In / Providers → Allow new users to sign
+// up). C'est ce réglage Supabase qui bloque réellement les inscriptions ;
+// ce drapeau ne fait qu'éviter d'afficher un bouton qui échouerait.
+export const ALLOW_SIGNUP = true;

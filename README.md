@@ -87,7 +87,27 @@ Si Supabase demande une confirmation par e-mail (Authentication → Providers �
 Email), valide le lien reçu avant de te connecter. Tu peux aussi désactiver
 cette confirmation le temps du premier test.
 
-### 4. Activer la 2FA
+### 4. Fermer les inscriptions
+
+**C'est l'étape qui verrouille tout.** Tant que les inscriptions sont
+ouvertes, n'importe qui peut créer un compte et franchir la garde des trois
+sites. Une fois ton compte créé :
+
+1. Supabase → **Authentication → Sign In / Providers → Email** : désactive
+   **Allow new users to sign up**.
+2. Passe `ALLOW_SIGNUP` à `false` dans [`assets/config.js`](assets/config.js)
+   pour retirer le bouton « Créer le compte » de la page.
+
+L'ordre compte : crée ton compte **avant** de couper les inscriptions, sinon
+tu ne pourras plus en créer depuis l'interface. Si ça t'arrive, tu peux
+toujours ajouter un utilisateur à la main depuis Supabase →
+**Authentication → Users → Add user**.
+
+Le point 1 est le seul qui protège vraiment : il est appliqué par le serveur
+Supabase. Le point 2 n'est que cosmétique — sans lui, le bouton resterait
+affiché et renverrait une erreur.
+
+### 5. Activer la 2FA
 
 Une fois connecté, clique sur **Activer la 2FA** en bas de page, scanne le QR
 code et saisis le code à 6 chiffres. À la prochaine connexion, le code sera

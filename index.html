@@ -111,6 +111,7 @@ import {
   getAssuranceLevel, needsMfaChallenge, listTotpFactors,
   enrollTotp, verifyTotp, unenrollTotp, loadData,
 } from "./assets/auth.js";
+import { ALLOW_SIGNUP } from "./assets/config.js";
 
 // Liste par défaut, utilisée tant qu'aucune liste personnalisée n'a été
 // enregistrée dans Supabase (table user_data, app = "home").
@@ -368,6 +369,10 @@ for (const button of document.querySelectorAll("[data-signout]")) {
     });
   });
 }
+
+// Inscriptions coupées côté Supabase : inutile de proposer un bouton
+// qui échouerait.
+$("btn-signup").hidden = !ALLOW_SIGNUP;
 
 refresh();
 </script>
