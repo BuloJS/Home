@@ -10,6 +10,13 @@ projets dans le tableau de bord Supabase.
 Tout se fait dans **SQL Editor**, sans export de fichier : on fait produire du
 JSON par l'ancien projet, on le colle dans le nouveau.
 
+> **Les blocs à coller sont délimités par `$json$`, pas par des apostrophes.**
+> C'est volontaire : un titre comme `Tom Clancy's Jack Ryan` contient une
+> apostrophe, qui refermerait une chaîne SQL classique en plein milieu et
+> ferait échouer la requête. La notation `$json$ … $json$` de PostgreSQL n'a
+> pas ce défaut — le contenu est pris tel quel, apostrophes comprises. Ne
+> remplace donc pas ces `$json$` par des `'`.
+
 ---
 
 ## Étape 0 — préparer le projet d'arrivée
@@ -56,7 +63,7 @@ select
   '<TON_UID>', x.title, x.year, x.seasons, x.episodes, x.tvmaze_id, x.genres,
   x.poster, x.status, x.rating, x.priority, x.review, x.favorite,
   x.created_at, x.updated_at
-from jsonb_populate_recordset(null::public.series, '<COLLER_ICI>'::jsonb) x;
+from jsonb_populate_recordset(null::public.series, $json$<COLLER_ICI>$json$::jsonb) x;
 ```
 
 Les identifiants d'origine sont volontairement écartés : de nouveaux sont
@@ -66,6 +73,14 @@ Vérifie :
 
 ```sql
 select count(*) from public.series;
+```
+
+Si un essai précédent a laissé des lignes incomplètes, vide la table dans le
+**nouveau** projet avant de relancer l'import — l'ancien projet n'est pas
+touché :
+
+```sql
+delete from public.series;
 ```
 
 ---
@@ -84,7 +99,7 @@ select data from public.portfolios;
 
 ```sql
 insert into public.portfolios (user_id, data)
-values ('<TON_UID>', '<COLLER_ICI>'::jsonb)
+values ('<TON_UID>', $json$<COLLER_ICI>$json$::jsonb)
 on conflict (user_id) do update set data = excluded.data, updated_at = now();
 ```
 
@@ -108,7 +123,7 @@ Le contenu est copié dans le presse-papier. Colle-le dans le nouveau projet :
 
 ```sql
 insert into public.user_data (user_id, app, data)
-values ('<TON_UID>', 'finance', '<COLLER_ICI>'::jsonb)
+values ('<TON_UID>', 'finance', $json$<COLLER_ICI>$json$::jsonb)
 on conflict (user_id, app) do update set data = excluded.data, updated_at = now();
 ```
 
