@@ -1,0 +1,44 @@
+<!doctype html>
+<!--
+  Modèle à recopier dans Series, Finance et Simu-SCI.
+
+  Les deux lignes marquées ci-dessous suffisent à protéger la page : la
+  première la masque le temps de la vérification, la seconde vérifie la
+  session et renvoie vers Home si elle manque.
+
+  À copier également dans le repo concerné, dans un dossier `assets/` :
+  guard.js, auth.js et config.js.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page protégée — exemple</title>
+
+<!-- 1. masque la page tant que la session n'est pas vérifiée -->
+<script>document.documentElement.style.visibility = "hidden";</script>
+<!-- 2. vérifie la session, réaffiche la page ou renvoie vers Home -->
+<script type="module" src="assets/guard.js"></script>
+
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+
+<header>
+  <h1>Page protégée</h1>
+  <p>Ce contenu n'apparaît qu'avec une session ouverte depuis Home.</p>
+</header>
+
+<main>
+  <div class="panel">
+    <h2>Ça marche</h2>
+    <p class="hint" style="margin: 0">
+      Si tu vois ce texte, la session Supabase a été trouvée. Sans elle, tu
+      aurais été renvoyé vers la page d'accueil, qui te ramène ici une fois
+      la connexion faite.
+    </p>
+  </div>
+</main>
+
+</body>
+</html>

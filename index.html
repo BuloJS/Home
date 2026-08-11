@@ -249,7 +249,26 @@ async function route() {
   await showApp(session);
 }
 
+/**
+ * Renvoie la destination demandée par un autre site via ?next=, si elle est
+ * bien un chemin de cette même origine. Refuse tout le reste : sans ce
+ * filtre, n'importe qui pourrait fabriquer un lien vers Home qui redirige
+ * vers un site externe une fois la connexion faite.
+ */
+function safeNext() {
+  const next = new URLSearchParams(window.location.search).get("next");
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
 async function showApp(session) {
+  // Session complète : si on venait d'un site protégé, on y retourne.
+  const next = safeNext();
+  if (next) {
+    window.location.replace(next);
+    return;
+  }
+
   const user = session.user;
   $("account-email").textContent = user.email;
 

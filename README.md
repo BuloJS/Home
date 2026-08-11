@@ -16,17 +16,50 @@ avec double authentification.
 - Les carrés peuvent venir de la base plutôt que du code, pour ne pas exposer
   la liste des liens publiquement.
 
+## Protéger les 3 autres sites
+
+Les quatre sites sont servis par **la même origine** (`bulojs.github.io`), donc
+ils partagent le même `localStorage` : la session ouverte sur Home est
+directement visible par Series, Finance et Simu-SCI. **Aucune seconde
+connexion n'est nécessaire.**
+
+Dans chacun des trois repos :
+
+1. Copie `assets/guard.js`, `assets/auth.js` et `assets/config.js` depuis ce
+   repo, dans un dossier `assets/`.
+2. Ajoute ces deux lignes tout en haut du `<head>` de la page, avant le reste :
+
+```html
+<script>document.documentElement.style.visibility = "hidden";</script>
+<script type="module" src="assets/guard.js"></script>
+```
+
+C'est tout. Le comportement obtenu :
+
+| Situation | Résultat |
+|---|---|
+| Accès direct à `/Series/` sans session | renvoi vers Home, puis retour automatique sur `/Series/` après connexion |
+| Accès depuis Home, session ouverte | la page s'affiche, sans rien redemander |
+| 2FA activée mais code non saisi | renvoi vers Home pour saisir le code |
+| Réseau coupé / Supabase injoignable | accès refusé avec la raison affichée |
+
+[`exemple-page-protegee.html`](exemple-page-protegee.html) est un modèle
+complet et fonctionnel à recopier.
+
 ## Ce que ça ne fait pas
 
-Les trois sites pointés (Simu-SCI, Series, Finance) sont des **sites
-statiques publics** : `bulojs.github.io/Series/` s'ouvre directement, sans
-passer par Home. La connexion protège donc **la page d'accueil et les données
-Supabase**, pas les sites de destination.
+La garde ci-dessus empêche l'accès direct **dans un navigateur**, ce qui
+couvre l'usage normal. Mais un site statique reste un ensemble de fichiers
+publics : quelqu'un qui saurait les demander à la main (`curl`, cache de
+GitHub, code source du repo) obtiendrait le HTML sans passer par la
+connexion. La garde n'est pas contournable par accident, elle l'est par
+quelqu'un de déterminé.
 
-Pour qu'un contenu soit réellement protégé, il doit être **stocké dans
-Supabase** et non écrit en dur dans les fichiers du repo : c'est la Row Level
-Security de la base qui refuse de le servir à quelqu'un qui n'est pas
-connecté. Un site statique, lui, est toujours téléchargeable.
+Pour qu'un contenu soit réellement inaccessible, il doit être **stocké dans
+Supabase** plutôt qu'écrit en dur dans les fichiers : c'est alors la Row Level
+Security de la base qui refuse de le servir à un visiteur non connecté, et là
+il n'y a rien à contourner. C'est le chemin à prendre si les données de
+Finance, par exemple, sont sensibles.
 
 ## Mise en route
 

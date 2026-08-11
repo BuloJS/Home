@@ -8,5 +8,10 @@
 //
 // Où les trouver : Supabase → ton projet → Settings → API.
 
-export const SUPABASE_URL = "https://TON-PROJET.supabase.co";
-export const SUPABASE_ANON_KEY = "TA_CLE_ANON";
+export const SUPABASE_URL = "https://pyduueytagmzsdwtzltu.supabase.co";
+export const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5ZHV1ZXl0YWdtenNkd3R6bHR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NTU0ODcsImV4cCI6MjEwMjAzMTQ4N30.6Fl5gkIDF8Vie2o8IRKWSYCFVpTIRw5LSXVHW5TalQk";
+
+// Chemin de la page d'accueil, vers laquelle les autres sites renvoient
+// lorsqu'aucune session valide n'est trouvée.
+export const HOME_PATH = "/Home/";
