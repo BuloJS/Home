@@ -21,10 +21,29 @@
 // il faut le stocker dans Supabase, où la RLS le refuse aux non-connectés.
 
 import { getSession, getAssuranceLevel, needsMfaChallenge } from "./auth.js";
-import { HOME_PATH } from "./config.js";
+import { HOME_PATH, REQUIRE_AAL2 } from "./config.js";
 
 const BOUNCE_KEY = "guard:bounces";
 const MAX_BOUNCES = 3;
+
+/**
+ * Niveau d'authentification inscrit dans le jeton : « aal1 » avec le mot de
+ * passe seul, « aal2 » une fois le code à 6 chiffres validé.
+ *
+ * On le lit directement dans le jeton plutôt que de se fier au champ
+ * `user.factors`, qui n'est pas toujours présent dans la session stockée :
+ * une session restée à l'étape du code sur Home passerait alors la garde.
+ */
+function assuranceLevel(session) {
+  const token = session?.access_token;
+  if (!token) return null;
+  try {
+    const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(payload)).aal || "aal1";
+  } catch {
+    return "aal1";
+  }
+}
 
 function reveal() {
   document.documentElement.style.visibility = "";
@@ -61,11 +80,13 @@ function redirectToHome() {
 
 try {
   const session = await getSession();
-  if (!session || needsMfaChallenge(await getAssuranceLevel())) {
-    redirectToHome();
-  } else {
-    reveal();
-  }
+  const incomplete =
+    !session ||
+    needsMfaChallenge(await getAssuranceLevel()) ||
+    (REQUIRE_AAL2 && assuranceLevel(session) !== "aal2");
+
+  if (incomplete) redirectToHome();
+  else reveal();
 } catch (error) {
   // Réseau coupé, CDN injoignable, projet en pause : on refuse l'accès
   // plutôt que d'afficher le contenu par accident.

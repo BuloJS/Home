@@ -16,6 +16,16 @@ export const SUPABASE_ANON_KEY =
 // lorsqu'aucune session valide n'est trouvée.
 export const HOME_PATH = "/Home/";
 
+// Exiger que la double authentification ait été franchie (niveau « aal2 »)
+// pour accéder aux sites protégés.
+//
+// Sans cette exigence, la garde se fierait au champ `user.factors` de la
+// session, qui n'est pas toujours présent : une session arrêtée à l'étape du
+// code à 6 chiffres — donc ouverte avec le mot de passe seul — suffirait
+// alors à entrer. À passer à false uniquement si la 2FA est retirée du
+// compte, sinon plus personne ne peut entrer.
+export const REQUIRE_AAL2 = true;
+
 // Affichage du bouton "Créer le compte".
 // Passe à false une fois ton compte créé et les inscriptions coupées dans
 // Supabase (Authentication → Sign In / Providers → Allow new users to sign

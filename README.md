@@ -23,7 +23,16 @@ ils partagent le même `localStorage` : la session ouverte sur Home est
 directement visible par Series, Finance et Simu-SCI. **Aucune seconde
 connexion n'est nécessaire.**
 
-Dans chacun des trois repos :
+**C'est déjà installé sur les trois**, chacun sur une branche
+`claude/compte-unique-home` à merger :
+
+| Site | Ce qui a été fait |
+|---|---|
+| **Series** | Repointé sur le projet unique ; sa session utilise désormais la même clé et le même format que Home. Garde dans `assets/js/guard.js`, sans dépendance ajoutée. |
+| **Simu-SCI** | Repointé sur le projet unique ; garde dans `src/lib/guard.ts`, appelée avant le rendu React. |
+| **Finance** | Garde autonome dans `assets/guard.js` : elle lit la session dans le `localStorage` sans embarquer la librairie Supabase, inutile ici. |
+
+Pour un nouveau site, la recette générique reste :
 
 1. Copie `assets/guard.js`, `assets/auth.js` et `assets/config.js` depuis ce
    repo, dans un dossier `assets/`.
@@ -34,13 +43,14 @@ Dans chacun des trois repos :
 <script type="module" src="assets/guard.js"></script>
 ```
 
-C'est tout. Le comportement obtenu :
+Le comportement obtenu :
 
 | Situation | Résultat |
 |---|---|
 | Accès direct à `/Series/` sans session | renvoi vers Home, puis retour automatique sur `/Series/` après connexion |
 | Accès depuis Home, session ouverte | la page s'affiche, sans rien redemander |
 | 2FA activée mais code non saisi | renvoi vers Home pour saisir le code |
+| Session expirée | renvoi vers Home, qui la renouvelle et ramène |
 | Réseau coupé / Supabase injoignable | accès refusé avec la raison affichée |
 
 [`exemple-page-protegee.html`](exemple-page-protegee.html) est un modèle
