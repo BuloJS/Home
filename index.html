@@ -6,196 +6,164 @@
 <title>BuloJS — Home</title>
 <meta name="description" content="Accès rapide à mes projets GitHub Pages.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
-<style>
-  /* Thème sombre unique, dans l'esprit macOS : gris graphite plutôt que noir. */
-  :root {
-    color-scheme: dark;
-    --bg: #1c1d21;
-    --bg-top: #2a2c33;
-    --surface: #2c2e34;
-    --surface-hover: #383a42;
-    --border: rgba(255, 255, 255, .10);
-    --border-hover: rgba(255, 255, 255, .22);
-    --text: #f5f5f7;
-    --muted: #aeb0b6;
-    --shadow: 0 10px 30px rgba(0, 0, 0, .35);
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    min-height: 100vh;
-    padding: clamp(2.5rem, 8vw, 6rem) clamp(1rem, 5vw, 3rem);
-    background: var(--bg);
-    background-image: radial-gradient(120% 70% at 50% 0%, var(--bg-top) 0%, var(--bg) 55%);
-    background-attachment: fixed;
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
-                 "Helvetica Neue", "Segoe UI", Roboto, ui-sans-serif, system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
-
-  header {
-    max-width: 1000px;
-    margin: 0 auto clamp(2.5rem, 6vw, 4rem);
-    text-align: center;
-  }
-
-  h1 {
-    margin: 0 0 .6rem;
-    font-size: clamp(2.1rem, 6vw, 3.2rem);
-    font-weight: 700;
-    letter-spacing: -0.025em;
-  }
-
-  header p {
-    margin: 0;
-    color: var(--muted);
-    font-size: clamp(1rem, 2.6vw, 1.15rem);
-    letter-spacing: -0.005em;
-  }
-
-  main { max-width: 1000px; margin: 0 auto; }
-
-  /* Colonnes plafonnées + grille centrée : les carrés restent groupés au milieu. */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 240px));
-    justify-content: center;
-    gap: clamp(1rem, 2.5vw, 1.5rem);
-  }
-
-  .tile {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: space-between;
-    aspect-ratio: 1 / 1;
-    padding: 1.4rem;
-    border: 1px solid var(--border);
-    border-radius: 22px;
-    background: var(--surface);
-    box-shadow: var(--shadow);
-    color: inherit;
-    text-decoration: none;
-    isolation: isolate;
-    overflow: hidden;
-    transition: transform .22s cubic-bezier(.22, 1, .36, 1),
-                background-color .22s ease, border-color .22s ease, box-shadow .22s ease;
-  }
-
-  /* Voile coloré propre à chaque tuile, très discret au repos. */
-  .tile::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: radial-gradient(120% 90% at 15% 0%, var(--tint) 0%, transparent 65%);
-    opacity: .30;
-    transition: opacity .22s ease;
-  }
-
-  .tile:hover,
-  .tile:focus-visible {
-    transform: translateY(-5px);
-    background: var(--surface-hover);
-    border-color: var(--border-hover);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
-    outline: none;
-  }
-
-  .tile:hover::before,
-  .tile:focus-visible::before { opacity: .55; }
-
-  .tile:focus-visible { outline: 3px solid #0a84ff; outline-offset: 3px; }
-
-  .tile:active { transform: translateY(-1px) scale(.985); }
-
-  /* Pastille façon icône d'app : dégradé arrondi. */
-  .icon {
-    display: grid;
-    place-items: center;
-    width: 54px;
-    height: 54px;
-    border-radius: 15px;
-    background: linear-gradient(150deg, var(--tint), var(--tint-2));
-    box-shadow: 0 6px 16px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .28);
-    font-size: 1.65rem;
-    line-height: 1;
-  }
-
-  .label { width: 100%; }
-
-  .name {
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    word-break: break-word;
-  }
-
-  .desc {
-    display: block;
-    margin-top: .25rem;
-    font-size: .9rem;
-    color: var(--muted);
-    line-height: 1.35;
-  }
-
-  .arrow {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.4rem;
-    color: var(--muted);
-    opacity: .75;
-    transition: transform .22s ease, opacity .22s ease;
-  }
-
-  .tile:hover .arrow,
-  .tile:focus-visible .arrow { opacity: 1; transform: translate(2px, -2px); }
-
-  @media (prefers-reduced-motion: reduce) {
-    .tile, .tile::before, .arrow { transition: none; }
-    .tile:hover, .tile:focus-visible, .tile:active { transform: none; }
-  }
-</style>
+<link rel="stylesheet" href="assets/app.css">
 </head>
 <body>
 
 <header>
   <h1>BuloJS</h1>
-  <p>Mes projets hébergés sur GitHub Pages</p>
+  <p id="subtitle">Mes projets hébergés sur GitHub Pages</p>
 </header>
 
 <main>
-  <!--
-    Pour ajouter / retirer un carré : modifie simplement la liste ci-dessous.
-    - name  : le texte affiché
-    - url   : le lien (par défaut https://bulojs.github.io/<repo>/)
-    - emoji : optionnel, l'icône dans la pastille
-    - desc  : optionnel, la ligne sous le nom
-    - tint  : optionnel, les 2 couleurs du dégradé de la pastille
-  -->
-  <div class="grid" id="grid"></div>
+
+  <!-- Écran d'attente pendant la vérification de la session. -->
+  <section id="view-loading" class="panel">
+    <p class="hint" style="margin: 0">Chargement…</p>
+  </section>
+
+  <!-- Affiché tant que assets/config.js n'a pas été renseigné. -->
+  <section id="view-setup" class="panel" hidden>
+    <h2>Configuration à terminer</h2>
+    <p class="hint">
+      Renseigne l'URL et la clé <code>anon</code> de ton projet Supabase dans
+      <code>assets/config.js</code>, puis exécute <code>supabase/schema.sql</code>
+      dans l'éditeur SQL. Les étapes détaillées sont dans le README.
+    </p>
+  </section>
+
+  <!-- Connexion. -->
+  <section id="view-login" class="panel" hidden>
+    <h2>Connexion</h2>
+    <p class="hint">Connecte-toi pour retrouver tes projets et tes données sur ce PC.</p>
+    <form id="form-login">
+      <div class="field">
+        <label for="email">Adresse e-mail</label>
+        <input id="email" type="email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="row">
+        <button class="btn" type="submit">Se connecter</button>
+        <button class="btn secondary" type="button" id="btn-signup">Créer le compte</button>
+      </div>
+    </form>
+    <div id="login-msg"></div>
+  </section>
+
+  <!-- Saisie du code 2FA à la connexion. -->
+  <section id="view-mfa" class="panel" hidden>
+    <h2>Vérification en deux étapes</h2>
+    <p class="hint">Saisis le code à 6 chiffres affiché par ton application d'authentification.</p>
+    <form id="form-mfa">
+      <div class="field">
+        <input id="mfa-code" class="code" type="text" inputmode="numeric" autocomplete="one-time-code"
+               pattern="[0-9]{6}" maxlength="6" required aria-label="Code à 6 chiffres">
+      </div>
+      <button class="btn" type="submit">Valider</button>
+    </form>
+    <div id="mfa-msg"></div>
+    <div class="row" style="margin-top: 1rem">
+      <button class="btn ghost" type="button" data-signout>Annuler</button>
+    </div>
+  </section>
+
+  <!-- Activation de la 2FA. -->
+  <section id="view-enroll" class="panel" hidden>
+    <h2>Activer la double authentification</h2>
+    <p class="hint">
+      Scanne ce QR code avec ton application d'authentification (Google Authenticator,
+      1Password, Aegis…), puis saisis le code qu'elle affiche.
+    </p>
+    <img id="enroll-qr" class="qr" alt="QR code à scanner">
+    <code id="enroll-secret" class="secret"></code>
+    <form id="form-enroll">
+      <div class="field">
+        <input id="enroll-code" class="code" type="text" inputmode="numeric"
+               pattern="[0-9]{6}" maxlength="6" required aria-label="Code à 6 chiffres">
+      </div>
+      <div class="row">
+        <button class="btn" type="submit">Activer</button>
+        <button class="btn secondary" type="button" id="btn-enroll-cancel">Annuler</button>
+      </div>
+    </form>
+    <div id="enroll-msg"></div>
+  </section>
+
+  <!-- Les tuiles, une fois la session complète. -->
+  <section id="view-app" hidden>
+    <div class="grid" id="grid"></div>
+  </section>
+
 </main>
 
-<script>
-  const SITES = [
-    { name: "Simu-SCI", url: "https://bulojs.github.io/Simu-SCI/", emoji: "🏢",
-      desc: "Simulateur SCI",       tint: ["#0a84ff", "#5e5ce6"] },
-    { name: "Series",   url: "https://bulojs.github.io/Series/",   emoji: "📺",
-      desc: "Classement de séries", tint: ["#ff375f", "#ff9f0a"] },
-    { name: "Finance",  url: "https://bulojs.github.io/Finance/",  emoji: "💰",
-      desc: "Outils finance",       tint: ["#30d158", "#0a84ff"] },
-  ];
+<div class="account" id="account" hidden>
+  <span id="account-email"></span>
+  <button class="btn ghost" type="button" id="btn-mfa"></button>
+  <button class="btn ghost" type="button" data-signout>Se déconnecter</button>
+</div>
 
-  const DEFAULT_TINT = ["#0a84ff", "#5e5ce6"];
-  const grid = document.getElementById("grid");
+<script type="module">
+import {
+  isConfigured, getSession, getUser, signIn, signUp, signOut,
+  getAssuranceLevel, needsMfaChallenge, listTotpFactors,
+  enrollTotp, verifyTotp, unenrollTotp, loadData,
+} from "./assets/auth.js";
 
-  for (const site of SITES) {
+// Liste par défaut, utilisée tant qu'aucune liste personnalisée n'a été
+// enregistrée dans Supabase (table user_data, app = "home").
+// - name  : le texte affiché      - emoji : l'icône dans la pastille
+// - url   : le lien               - desc  : la ligne sous le nom
+// - tint  : les 2 couleurs du dégradé de la pastille
+const DEFAULT_SITES = [
+  { name: "Simu-SCI", url: "https://bulojs.github.io/Simu-SCI/", emoji: "🏢",
+    desc: "Simulateur SCI",       tint: ["#0a84ff", "#5e5ce6"] },
+  { name: "Series",   url: "https://bulojs.github.io/Series/",   emoji: "📺",
+    desc: "Classement de séries", tint: ["#ff375f", "#ff9f0a"] },
+  { name: "Finance",  url: "https://bulojs.github.io/Finance/",  emoji: "💰",
+    desc: "Outils finance",       tint: ["#30d158", "#0a84ff"] },
+];
+
+const DEFAULT_TINT = ["#0a84ff", "#5e5ce6"];
+const VIEWS = ["loading", "setup", "login", "mfa", "enroll", "app"];
+
+const $ = (id) => document.getElementById(id);
+
+function showView(name) {
+  for (const view of VIEWS) $(`view-${view}`).hidden = view !== name;
+}
+
+function message(container, text, kind = "error") {
+  $(container).innerHTML = "";
+  if (!text) return;
+  const div = document.createElement("div");
+  div.className = `msg ${kind}`;
+  div.textContent = text;
+  $(container).appendChild(div);
+}
+
+/** Exécute une action en désactivant le bouton, et affiche l'erreur éventuelle. */
+async function run(button, container, action) {
+  button.disabled = true;
+  message(container, "");
+  try {
+    await action();
+  } catch (error) {
+    message(container, error.message);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+// --- Tuiles ---------------------------------------------------------------
+
+function renderTiles(sites) {
+  const grid = $("grid");
+  grid.innerHTML = "";
+
+  for (const site of sites) {
     const [tint, tint2] = site.tint || DEFAULT_TINT;
 
     const a = document.createElement("a");
@@ -234,6 +202,155 @@
     a.appendChild(label);
     grid.appendChild(a);
   }
+}
+
+// --- Enchaînement des écrans ---------------------------------------------
+
+let pendingFactorId = null;   // facteur à valider à la connexion
+let enrollFactorId = null;    // facteur en cours d'activation
+
+async function refresh() {
+  try {
+    await route();
+  } catch (error) {
+    // Réseau coupé, CDN injoignable, projet Supabase en pause… : on retombe
+    // sur l'écran de connexion avec la raison, plutôt que de rester figé.
+    $("account").hidden = true;
+    showView("login");
+    message("login-msg", error.message);
+  }
+}
+
+async function route() {
+  if (!isConfigured()) {
+    $("account").hidden = true;
+    showView("setup");
+    return;
+  }
+
+  const session = await getSession();
+  if (!session) {
+    $("account").hidden = true;
+    $("subtitle").textContent = "Mes projets hébergés sur GitHub Pages";
+    showView("login");
+    return;
+  }
+
+  const aal = await getAssuranceLevel();
+  if (needsMfaChallenge(aal)) {
+    const factors = await listTotpFactors();
+    pendingFactorId = factors[0]?.id ?? null;
+    $("account").hidden = true;
+    showView("mfa");
+    $("mfa-code").focus();
+    return;
+  }
+
+  await showApp(session);
+}
+
+async function showApp(session) {
+  const user = session.user;
+  $("account-email").textContent = user.email;
+
+  const factors = await listTotpFactors();
+  const btnMfa = $("btn-mfa");
+  btnMfa.textContent = factors.length ? "Désactiver la 2FA" : "Activer la 2FA";
+  btnMfa.dataset.factorId = factors[0]?.id ?? "";
+  $("account").hidden = false;
+
+  // Liste personnalisée si elle existe, sinon celle du code.
+  let sites = DEFAULT_SITES;
+  try {
+    const saved = await loadData("home");
+    if (Array.isArray(saved?.sites) && saved.sites.length) sites = saved.sites;
+  } catch {
+    // Table absente ou hors ligne : on garde la liste par défaut.
+  }
+
+  renderTiles(sites);
+  showView("app");
+}
+
+// --- Événements -----------------------------------------------------------
+
+$("form-login").addEventListener("submit", (event) => {
+  event.preventDefault();
+  run(event.submitter ?? $("form-login").querySelector(".btn"), "login-msg", async () => {
+    await signIn($("email").value, $("password").value);
+    await refresh();
+  });
+});
+
+$("btn-signup").addEventListener("click", (event) => {
+  run(event.currentTarget, "login-msg", async () => {
+    await signUp($("email").value, $("password").value);
+    message("login-msg", "Compte créé. Vérifie ta boîte mail si une confirmation est demandée, puis connecte-toi.", "ok");
+  });
+});
+
+$("form-mfa").addEventListener("submit", (event) => {
+  event.preventDefault();
+  run(event.target.querySelector(".btn"), "mfa-msg", async () => {
+    if (!pendingFactorId) throw new Error("Aucun facteur 2FA trouvé sur ce compte.");
+    await verifyTotp(pendingFactorId, $("mfa-code").value);
+    $("mfa-code").value = "";
+    await refresh();
+  });
+});
+
+$("btn-mfa").addEventListener("click", (event) => {
+  const button = event.currentTarget;
+  const factorId = button.dataset.factorId;
+
+  if (factorId) {
+    if (!confirm("Désactiver la double authentification sur ce compte ?")) return;
+    run(button, "login-msg", async () => {
+      await unenrollTotp(factorId);
+      await refresh();
+    });
+    return;
+  }
+
+  run(button, "enroll-msg", async () => {
+    const { factorId: id, qr, secret } = await enrollTotp();
+    enrollFactorId = id;
+    $("enroll-qr").src = qr;
+    $("enroll-secret").textContent = secret;
+    $("account").hidden = true;
+    showView("enroll");
+    $("enroll-code").focus();
+  });
+});
+
+$("form-enroll").addEventListener("submit", (event) => {
+  event.preventDefault();
+  run(event.target.querySelector(".btn"), "enroll-msg", async () => {
+    await verifyTotp(enrollFactorId, $("enroll-code").value);
+    $("enroll-code").value = "";
+    enrollFactorId = null;
+    await refresh();
+  });
+});
+
+$("btn-enroll-cancel").addEventListener("click", (event) => {
+  run(event.currentTarget, "enroll-msg", async () => {
+    if (enrollFactorId) await unenrollTotp(enrollFactorId);
+    enrollFactorId = null;
+    await refresh();
+  });
+});
+
+for (const button of document.querySelectorAll("[data-signout]")) {
+  button.addEventListener("click", (event) => {
+    run(event.currentTarget, "login-msg", async () => {
+      await signOut();
+      await refresh();
+    });
+  });
+}
+
+refresh();
 </script>
 
 </body>
