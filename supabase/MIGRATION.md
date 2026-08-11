@@ -116,8 +116,14 @@ Sur le PC qui contient les données, ouvre le site Finance, puis la console
 (F12) et exécute :
 
 ```js
-copy(JSON.stringify(Object.fromEntries(Object.entries(localStorage))));
+copy(localStorage.getItem('compta.epargne.v1'));
 ```
+
+> Cette commande extrait **uniquement** le tableau. Une version précédente de
+> ce guide recopiait tout le `localStorage`, ce qui produisait une enveloppe
+> `{"compta.epargne.v1": "{…}"}` que l'application ne reconnaissait pas :
+> elle repartait alors sur un tableau vide. Le code sait désormais déballer
+> cette enveloppe, mais autant enregistrer directement la bonne forme.
 
 Le contenu est copié dans le presse-papier. Colle-le dans le nouveau projet :
 
@@ -127,9 +133,17 @@ values ('<TON_UID>', 'finance', $json$<COLLER_ICI>$json$::jsonb)
 on conflict (user_id, app) do update set data = excluded.data, updated_at = now();
 ```
 
-Cette étape met les données **à l'abri**. Pour que Finance les relise depuis
-Supabase au lieu du `localStorage`, il faut modifier son code — c'est un
-chantier à part, à faire après la bascule.
+Finance relit désormais ces données depuis Supabase et les y réenregistre :
+elles te suivent d'un PC à l'autre.
+
+Si tu as utilisé l'ancienne commande et que ta ligne contient l'enveloppe,
+tu peux la remettre à plat — facultatif, le code sait la lire :
+
+```sql
+update public.user_data
+set data = (data ->> 'compta.epargne.v1')::jsonb
+where app = 'finance' and data ? 'compta.epargne.v1';
+```
 
 ---
 
