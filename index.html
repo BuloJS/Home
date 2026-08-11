@@ -95,12 +95,55 @@
   <!-- Les tuiles, une fois la session complète. -->
   <section id="view-app" hidden>
     <div class="grid" id="grid"></div>
+    <div id="grid-msg"></div>
+  </section>
+
+  <!-- Ajout ou modification d'un carré. -->
+  <section id="view-tile" class="panel" hidden>
+    <h2 id="tile-title">Nouveau carré</h2>
+    <p class="hint">
+      Le lien peut être un simple nom de dépôt — il devient
+      <code>bulojs.github.io/&lt;nom&gt;/</code> automatiquement.
+    </p>
+    <form id="form-tile">
+      <div class="field">
+        <label for="tile-name">Nom</label>
+        <input id="tile-name" type="text" required maxlength="40" placeholder="Photos">
+      </div>
+      <div class="field">
+        <label for="tile-url">Lien ou nom de dépôt</label>
+        <input id="tile-url" type="text" required placeholder="Photos">
+      </div>
+      <div class="field">
+        <label for="tile-desc">Description (facultatif)</label>
+        <input id="tile-desc" type="text" maxlength="60" placeholder="Galerie personnelle">
+      </div>
+      <div class="row">
+        <div class="field" style="flex: 1">
+          <label for="tile-emoji">Icône</label>
+          <input id="tile-emoji" type="text" maxlength="4" placeholder="📷">
+        </div>
+        <div class="field" style="flex: 1">
+          <label for="tile-tint">Couleurs</label>
+          <span class="colors">
+            <input id="tile-tint" type="color" value="#0a84ff" aria-label="Couleur de début">
+            <input id="tile-tint2" type="color" value="#5e5ce6" aria-label="Couleur de fin">
+          </span>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn" type="submit">Enregistrer</button>
+        <button class="btn secondary" type="button" id="btn-tile-cancel">Annuler</button>
+      </div>
+    </form>
+    <div id="tile-msg"></div>
   </section>
 
 </main>
 
 <div class="account" id="account" hidden>
   <span id="account-email"></span>
+  <button class="btn ghost" type="button" id="btn-edit">Gérer les carrés</button>
   <button class="btn ghost" type="button" id="btn-mfa"></button>
   <button class="btn ghost" type="button" data-signout>Se déconnecter</button>
 </div>
@@ -157,7 +200,7 @@
 import {
   isConfigured, getSession, getUser, signIn, signUp, signOut,
   getAssuranceLevel, needsMfaChallenge, listTotpFactors,
-  enrollTotp, verifyTotp, unenrollTotp, loadData,
+  enrollTotp, verifyTotp, unenrollTotp, loadData, saveData,
 } from "./assets/auth.js";
 import { ALLOW_SIGNUP } from "./assets/config.js";
 
@@ -176,7 +219,14 @@ const DEFAULT_SITES = [
 ];
 
 const DEFAULT_TINT = ["#0a84ff", "#5e5ce6"];
-const VIEWS = ["loading", "setup", "login", "mfa", "enroll", "app"];
+const VIEWS = ["loading", "setup", "login", "mfa", "enroll", "app", "tile"];
+
+// Liste affichée, et mode d'édition. La liste vit dans Supabase dès la
+// première modification ; tant qu'elle n'y est pas, DEFAULT_SITES sert de
+// point de départ.
+let sites = DEFAULT_SITES;
+let editing = false;
+let editIndex = null; // null = ajout, sinon rang du carré modifié
 
 const $ = (id) => document.getElementById(id);
 
@@ -210,16 +260,23 @@ async function run(button, container, action) {
 
 // --- Tuiles ---------------------------------------------------------------
 
-function renderTiles(sites) {
+function renderTiles() {
   const grid = $("grid");
   grid.innerHTML = "";
 
-  for (const site of sites) {
+  for (const [index, site] of sites.entries()) {
     const [tint, tint2] = site.tint || DEFAULT_TINT;
 
-    const a = document.createElement("a");
+    // En mode édition, le carré n'est plus un lien : cliquer dessus le
+    // modifie, sinon on ne pourrait plus le corriger sans quitter la page.
+    const a = document.createElement(editing ? "button" : "a");
     a.className = "tile";
-    a.href = site.url;
+    if (editing) {
+      a.type = "button";
+      a.addEventListener("click", () => openTileForm(index));
+    } else {
+      a.href = site.url;
+    }
     a.style.setProperty("--tint", tint);
     a.style.setProperty("--tint-2", tint2);
 
@@ -232,8 +289,25 @@ function renderTiles(sites) {
     const arrow = document.createElement("span");
     arrow.className = "arrow";
     arrow.setAttribute("aria-hidden", "true");
-    arrow.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg>';
+    arrow.innerHTML = editing
+      ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'
+      : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg>';
     a.appendChild(arrow);
+
+    if (editing) {
+      const remove = document.createElement("span");
+      remove.className = "tile-remove";
+      remove.textContent = "×";
+      remove.title = `Supprimer ${site.name}`;
+      remove.setAttribute("role", "button");
+      remove.addEventListener("click", (event) => {
+        event.stopPropagation(); // sans ça, le clic ouvrirait aussi le formulaire
+        if (!confirm(`Supprimer le carré « ${site.name} » ?`)) return;
+        sites = sites.filter((_, i) => i !== index);
+        persist();
+      });
+      a.appendChild(remove);
+    }
 
     const label = document.createElement("span");
     label.className = "label";
@@ -252,6 +326,56 @@ function renderTiles(sites) {
 
     a.appendChild(label);
     grid.appendChild(a);
+  }
+
+  if (editing) {
+    const add = document.createElement("button");
+    add.type = "button";
+    add.className = "tile tile-add";
+    add.innerHTML = '<span class="plus" aria-hidden="true">+</span><span class="label"><span class="name">Ajouter</span></span>';
+    add.addEventListener("click", () => openTileForm(null));
+    grid.appendChild(add);
+  }
+}
+
+/**
+ * Un nom de dépôt seul devient l'adresse complète du site : c'est le cas
+ * courant, autant éviter d'avoir à taper l'URL entière à chaque fois.
+ */
+function toUrl(value) {
+  const raw = value.trim();
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return `https://bulojs.github.io/${raw.replace(/^\/+|\/+$/g, "")}/`;
+}
+
+function openTileForm(index) {
+  editIndex = index;
+  const site = index === null ? null : sites[index];
+  const [tint, tint2] = site?.tint || DEFAULT_TINT;
+
+  $("tile-title").textContent = site ? `Modifier « ${site.name} »` : "Nouveau carré";
+  $("tile-name").value = site?.name ?? "";
+  $("tile-url").value = site?.url ?? "";
+  $("tile-desc").value = site?.desc ?? "";
+  $("tile-emoji").value = site?.emoji ?? "";
+  $("tile-tint").value = tint;
+  $("tile-tint2").value = tint2;
+
+  message("tile-msg", "");
+  showView("tile");
+  $("tile-name").focus();
+}
+
+/** Enregistre la liste dans Supabase, puis réaffiche la grille. */
+async function persist() {
+  renderTiles();
+  showView("app");
+  message("grid-msg", "Enregistrement…", "info");
+  try {
+    await saveData("home", { sites });
+    message("grid-msg", "");
+  } catch (error) {
+    message("grid-msg", `Non enregistré : ${error.message}`);
   }
 }
 
@@ -330,7 +454,7 @@ async function showApp(session) {
   $("account").hidden = false;
 
   // Liste personnalisée si elle existe, sinon celle du code.
-  let sites = DEFAULT_SITES;
+  sites = DEFAULT_SITES;
   try {
     const saved = await loadData("home");
     if (Array.isArray(saved?.sites) && saved.sites.length) sites = saved.sites;
@@ -338,7 +462,7 @@ async function showApp(session) {
     // Table absente ou hors ligne : on garde la liste par défaut.
   }
 
-  renderTiles(sites);
+  renderTiles();
   showView("app");
 }
 
@@ -419,6 +543,39 @@ for (const button of document.querySelectorAll("[data-signout]")) {
     });
   });
 }
+
+$("btn-edit").addEventListener("click", () => {
+  editing = !editing;
+  $("btn-edit").textContent = editing ? "Terminer" : "Gérer les carrés";
+  message("grid-msg", "");
+  renderTiles();
+  showView("app");
+});
+
+$("form-tile").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const entry = {
+    name: $("tile-name").value.trim(),
+    url: toUrl($("tile-url").value),
+    desc: $("tile-desc").value.trim(),
+    emoji: $("tile-emoji").value.trim(),
+    tint: [$("tile-tint").value, $("tile-tint2").value],
+  };
+  if (!entry.desc) delete entry.desc;
+  if (!entry.emoji) delete entry.emoji;
+
+  if (editIndex === null) sites = [...sites, entry];
+  else sites = sites.map((site, i) => (i === editIndex ? entry : site));
+
+  editIndex = null;
+  persist();
+});
+
+$("btn-tile-cancel").addEventListener("click", () => {
+  editIndex = null;
+  renderTiles();
+  showView("app");
+});
 
 // Inscriptions coupées côté Supabase : inutile de proposer un bouton
 // qui échouerait.

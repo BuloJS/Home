@@ -158,6 +158,64 @@ main { max-width: 1000px; margin: 0 auto; }
 .tile:hover .arrow,
 .tile:focus-visible .arrow { opacity: 1; transform: translate(2px, -2px); }
 
+/* --- Mode édition des carrés --------------------------------------------- */
+
+/* Les tuiles deviennent des <button> en édition : on neutralise le style
+   natif pour qu'elles restent identiques aux liens. */
+button.tile {
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.tile-remove {
+  position: absolute;
+  top: .55rem;
+  left: .6rem;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .4);
+}
+
+.tile-remove:hover { filter: brightness(1.15); }
+
+.tile-add {
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  border-style: dashed;
+  border-color: var(--border-hover);
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+}
+
+.tile-add .plus { font-size: 2.6rem; line-height: 1; font-weight: 300; }
+.tile-add .label { text-align: center; }
+.tile-add:hover { color: var(--text); background: rgba(255, 255, 255, .04); }
+
+.colors { display: flex; gap: .4rem; }
+
+input[type="color"] {
+  width: 100%;
+  height: 46px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, .25);
+  cursor: pointer;
+}
+
 /* --- Panneaux (connexion, 2FA, messages) --------------------------------- */
 
 .panel {
