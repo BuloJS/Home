@@ -19,7 +19,7 @@
 
   <!-- Écran d'attente pendant la vérification de la session. -->
   <section id="view-loading" class="panel">
-    <p class="hint" style="margin: 0">Chargement…</p>
+    <p class="hint" style="margin: 0" id="loading-text">Chargement…</p>
   </section>
 
   <!-- Affiché tant que assets/config.js n'a pas été renseigné. -->
@@ -105,6 +105,54 @@
   <button class="btn ghost" type="button" data-signout>Se déconnecter</button>
 </div>
 
+<!--
+  Chien de garde, volontairement en script classique (pas un module) : si le
+  module ci-dessous ne se charge pas du tout — fichier assets/ absent, erreur
+  de syntaxe, CDN filtré — aucune de ses lignes ne s'exécute et la page
+  resterait figée sur « Chargement… » sans rien dire. Ce script-ci, lui,
+  s'exécute quoi qu'il arrive et affiche la cause.
+-->
+<script>
+(function () {
+  var WATCHDOG_MS = 15000;
+  var reported = false;
+
+  function report(reason) {
+    if (reported || window.__homeBooted) return;
+    reported = true;
+    var el = document.getElementById("loading-text");
+    if (!el) return;
+    el.innerHTML =
+      "<strong style='color:#ff8f88'>La page n'a pas pu démarrer.</strong><br><br>" +
+      reason +
+      "<br><br>Ouvre la console du navigateur (F12) pour le détail.";
+  }
+
+  // Une ressource qui manque (assets/auth.js, assets/config.js…) déclenche
+  // un événement "error" sur la balise concernée.
+  window.addEventListener("error", function (event) {
+    var target = event.target;
+    var isResource = target && (target.tagName === "SCRIPT" || target.tagName === "LINK");
+    var url = isResource ? (target.src || target.href) : null;
+
+    if (isResource) {
+      report("Un fichier n'a pas pu être chargé" + (url ? " : <code>" + url + "</code>" : "") + "." +
+             "<br>Vérifie que le dossier <code>assets/</code> est bien publié par GitHub Pages " +
+             "(<code>assets/auth.js</code> et <code>assets/config.js</code> doivent s'ouvrir " +
+             "directement dans le navigateur), et que Pages pointe sur la bonne branche.");
+    } else if (event.message) {
+      report("Erreur JavaScript : <code>" + event.message + "</code>");
+    }
+  }, true);
+
+  setTimeout(function () {
+    report("Le chargement dépasse " + (WATCHDOG_MS / 1000) + " secondes. " +
+           "Causes probables : le SDK Supabase est bloqué par un pare-feu ou " +
+           "un bloqueur de publicités, ou le projet Supabase est en pause.");
+  }, WATCHDOG_MS);
+})();
+</script>
+
 <script type="module">
 import {
   isConfigured, getSession, getUser, signIn, signUp, signOut,
@@ -133,6 +181,8 @@ const VIEWS = ["loading", "setup", "login", "mfa", "enroll", "app"];
 const $ = (id) => document.getElementById(id);
 
 function showView(name) {
+  // Signale au chien de garde que l'application a bien démarré.
+  if (name !== "loading") window.__homeBooted = true;
   for (const view of VIEWS) $(`view-${view}`).hidden = view !== name;
 }
 

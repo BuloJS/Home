@@ -12,6 +12,7 @@
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 
 const SDK_URL = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+const SDK_TIMEOUT_MS = 12000;
 
 /** Les valeurs d'exemple de config.js sont-elles encore en place ? */
 export function isConfigured() {
@@ -34,7 +35,14 @@ export function getClient() {
     return Promise.reject(new Error("Supabase n'est pas configuré : renseigne assets/config.js."));
   }
   if (!clientPromise) {
-    clientPromise = import(SDK_URL)
+    // Course contre la montre : un CDN filtré par un pare-feu ou un bloqueur
+    // peut laisser la requête en attente sans jamais échouer. Sans ce
+    // garde-fou, la page resterait bloquée sur « Chargement… ».
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("délai dépassé")), SDK_TIMEOUT_MS)
+    );
+
+    clientPromise = Promise.race([import(SDK_URL), timeout])
       .then(({ createClient }) =>
         createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
           auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
